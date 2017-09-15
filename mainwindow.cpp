@@ -15,15 +15,11 @@ MainWindow::MainWindow(QWidget *parent) :
     mpmSeqGenA = new mSeqGenA;
     mpmSeqGenB = new mSeqGenB;
 
-    QPalette p = ui->status_win->palette();
-    p.setColor(QPalette::Base, QColor(0, 0, 24));
-    p.setColor(QPalette::Text,Qt::white);
-    ui->status_win->setPalette(p);
+    setStatusWinColors();
+    setGGVersionOnStart();
 
-    connect(ui->generate_btn,SIGNAL(clicked()),this,SLOT(generateGoldCode()));
-
+    connect(ui->generate_btn,SIGNAL(clicked()),this,SLOT(isSamePolyDeg()));
     connect(ui->clear_btn,SIGNAL(clicked()),this,SLOT(clearViewOnGui()));
-
 }
 
 MainWindow::~MainWindow()
@@ -31,8 +27,17 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::generateGoldCode()
-{
+
+void MainWindow::isSamePolyDeg(){
+    if(getCurrentPolyDegree() != ui->poly_deg_val->currentIndex()){
+        clearViewOnGui();
+        generateGoldCode();
+    }
+}
+
+void MainWindow::generateGoldCode(){
+    setCurrentPolyDegree(ui->poly_deg_val->currentIndex());
+
     polyDeg = ui->poly_deg_val->currentText().toInt();
     seqLength = setSeqLength(polyDeg);
 
@@ -44,39 +49,47 @@ void MainWindow::generateGoldCode()
     ui->status_win->appendPlainText("-> Sequence Length\t: " + QString::number(seqLength));
 
     QBitArray seqA = mpmSeqGenA->PNseq(polyDeg, seqLength, taps_seed);
-    ui->seq_1_bits->setText(arrToStr(seqA));
+    ui->mseq_1_bits->setText(arrToStr(seqA));
     ui->status_win->appendPlainText("-> 1st m-sequence\t: READY");
 
     QBitArray seqB = mpmSeqGenB->PNseq(polyDeg, seqLength, taps_seed);
-    ui->seq_2_bits->setText(arrToStr(seqB));
+    ui->mseq_2_bits->setText(arrToStr(seqB));
     ui->status_win->appendPlainText("-> 2st m-sequence\t: READY");
 
     gold(seqLength, seqA, seqB);
-    ui->status_win->appendPlainText("-> Gold-code\t: GENERATED");
+    ui->status_win->appendPlainText("-> Gold Codes\t: GENERATED");
+    ui->status_win->appendPlainText("-> No. of Bal. Seqs.\t: "+ QString::number(ui->balanced_seq_val->document()->blockCount()-2));
+    ui->status_win->appendPlainText("-> No. of Unbal. Seqs.\t: "+ QString::number(ui->unbalanced_seq_val->document()->blockCount()-2));
 
-    ui->status_win->appendPlainText("\n");
+
+
+    ui->status_win->appendPlainText("");
 
     setAttemptID(attemptID);
 }
 
-int MainWindow::setSeqLength(int polyDeg)
-{
+int MainWindow::setSeqLength(int polyDeg){
     int seqLength = (int)(pow(2,polyDeg) - 1);
     return seqLength;
 }
 
-void MainWindow::setAttemptID(int value)
-{
+void MainWindow::setAttemptID(int value){
     attemptID = value+1;
 }
 
-int MainWindow::getAttemptID() const
-{
+int MainWindow::getAttemptID() const{
     return attemptID;
 }
 
-QString MainWindow::arrToStr(QBitArray arr)
-{
+void MainWindow::setCurrentPolyDegree(int value){
+    currentPolyDegree = value;
+}
+
+int MainWindow::getCurrentPolyDegree() const{
+    return currentPolyDegree;
+}
+
+QString MainWindow::arrToStr(QBitArray arr){
     QString arrStr = "";
     for(int i = 0; i<arr.size(); i++)
     {
@@ -85,8 +98,7 @@ QString MainWindow::arrToStr(QBitArray arr)
     return arrStr;
 }
 
-void MainWindow::gold(int seqLength, QBitArray seqA, QBitArray seqB)
-{
+void MainWindow::gold(int seqLength, QBitArray seqA, QBitArray seqB){
     int i, j, d;
     QBitArray gold_code(seqLength);
 
@@ -102,33 +114,31 @@ void MainWindow::gold(int seqLength, QBitArray seqA, QBitArray seqB)
         //checking if the gold sequence is balanced & showing the gold code
         int zeros = 0;
         int ones = 0;
-        for (i = 0; i<seqLength; i++)
-        {
-            if (gold_code[i] == 0)
-            {
+        for (i = 0; i<seqLength; i++){
+            if (gold_code[i] == 0){
                 zeros = zeros+1;
             }
-            else
-            {
+            else            {
                 ones = ones+1;
             }
         }
 
-        if ((zeros == ones) || (zeros == (ones-1)))
-        {
-            ui->gold_code_bits->insertPlainText(arrToStr(gold_code));
-            ui->gold_code_bits->insertPlainText("\t'BALANCED'\n");
-            ui->gold_code_bits->moveCursor (QTextCursor::End);
-        }
-        else
-        {
-            //ui->gold_code_bits->insertPlainText(arrToStr(gold_code));
-            //ui->gold_code_bits->insertPlainText("\t'unbalanced'\n");
+        // display codes:
+        if (((zeros == ones) || (zeros == (ones-1)))){
+            //balanced codes
+            ui->balanced_seq_val->insertPlainText(arrToStr(gold_code));
+            ui->balanced_seq_val->insertPlainText("\n");
+            ui->balanced_seq_val->moveCursor (QTextCursor::End);
+        }else{
+            //unbalanced codes
+            ui->unbalanced_seq_val->insertPlainText(arrToStr(gold_code));
+            ui->unbalanced_seq_val->insertPlainText("\n");
+            ui->unbalanced_seq_val->moveCursor (QTextCursor::End);
+
         }
 
         //shifting the second m-sequence
-        for (j=(seqLength-1); j>0; j--)
-        {
+        for (j=(seqLength-1); j>0; j--){
             temp[j] = seqB[j-1];
         }
 
@@ -137,16 +147,32 @@ void MainWindow::gold(int seqLength, QBitArray seqA, QBitArray seqB)
 
         seqB = temp;
     }
-    ui->gold_code_bits->insertPlainText("\n");
+    ui->balanced_seq_val->insertPlainText("\n");
+    ui->unbalanced_seq_val->insertPlainText("\n");
 }
 
-void MainWindow::clearViewOnGui()
-{
+void MainWindow::clearViewOnGui(){
     ui->status_win->clear();
-    ui->seq_1_bits->clear();
-    ui->seq_2_bits->clear();
-    ui->gold_code_bits->clear();
+    ui->mseq_1_bits->clear();
+    ui->mseq_2_bits->clear();
+    ui->balanced_seq_val->clear();
+    ui->unbalanced_seq_val->clear();
+
+    setCurrentPolyDegree(-1);
+    setGGVersionOnStart();
 }
 
+void MainWindow::setGGVersionOnStart(){
+    ui->status_win->appendPlainText("Gold-Code Generator (version 0.1)");
+    ui->status_win->appendPlainText("____________________________");
+    ui->status_win->appendPlainText("");
+}
+
+void MainWindow::setStatusWinColors(){
+    QPalette p = ui->status_win->palette();
+    p.setColor(QPalette::Base, QColor(0, 0, 24));
+    p.setColor(QPalette::Text,Qt::white);
+    ui->status_win->setPalette(p);
+}
 
 
