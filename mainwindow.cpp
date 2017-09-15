@@ -20,11 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
     p.setColor(QPalette::Text,Qt::white);
     ui->status_win->setPalette(p);
 
-    ui->status_win->appendPlainText("Welcome to Gold Codes Generator");
-    ui->status_win->appendPlainText("(Click `Genearte` when ready)");
-    ui->status_win->appendPlainText("----------------------------------------\n");
+    connect(ui->generate_btn,SIGNAL(clicked()),this,SLOT(generateGoldCode()));
 
-    connect(ui->generate_btn,SIGNAL(clicked()),this,SLOT(GenerateGoldCode()));
+    connect(ui->clear_btn,SIGNAL(clicked()),this,SLOT(clearViewOnGui()));
 
 }
 
@@ -33,7 +31,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::GenerateGoldCode()
+void MainWindow::generateGoldCode()
 {
     polyDeg = ui->poly_deg_val->currentText().toInt();
     seqLength = setSeqLength(polyDeg);
@@ -54,7 +52,7 @@ void MainWindow::GenerateGoldCode()
     ui->status_win->appendPlainText("-> 2st m-sequence\t: READY");
 
     gold(seqLength, seqA, seqB);
-    ui->status_win->appendPlainText("-> Gold-code\t\t: GENERATED");
+    ui->status_win->appendPlainText("-> Gold-code\t: GENERATED");
 
     ui->status_win->appendPlainText("\n");
 
@@ -87,7 +85,7 @@ QString MainWindow::arrToStr(QBitArray arr)
     return arrStr;
 }
 
-QBitArray MainWindow::gold(int seqLength, QBitArray seqA, QBitArray seqB)
+void MainWindow::gold(int seqLength, QBitArray seqA, QBitArray seqB)
 {
     int i, j, d;
     QBitArray gold_code(seqLength);
@@ -101,29 +99,31 @@ QBitArray MainWindow::gold(int seqLength, QBitArray seqA, QBitArray seqB)
             gold_code[i] = seqA[i] ^ seqB[i];
         }
 
-        // showing the gold code
-        ui->gold_code_bits->insertPlainText(arrToStr(gold_code)+"\t");
-        ui->gold_code_bits->moveCursor (QTextCursor::End);
-
-        //checking if the gold sequence is balanced
-        int zeros=0, ones=0;
-        for (i=0; i<seqLength; i++)
+        //checking if the gold sequence is balanced & showing the gold code
+        int zeros = 0;
+        int ones = 0;
+        for (i = 0; i<seqLength; i++)
         {
-            if (gold_code[i]==0)
+            if (gold_code[i] == 0)
             {
-                zeros= zeros+1;
+                zeros = zeros+1;
             }
-            else {ones= ones+1;
+            else
+            {
+                ones = ones+1;
             }
         }
 
-        if ((zeros==ones) || (zeros==(ones-1)))
+        if ((zeros == ones) || (zeros == (ones-1)))
         {
-            ui->gold_code_bits->insertPlainText("'BALANCED'\n");
+            ui->gold_code_bits->insertPlainText(arrToStr(gold_code));
+            ui->gold_code_bits->insertPlainText("\t'BALANCED'\n");
+            ui->gold_code_bits->moveCursor (QTextCursor::End);
         }
         else
         {
-            ui->gold_code_bits->insertPlainText("'unbalanced'\n");
+            //ui->gold_code_bits->insertPlainText(arrToStr(gold_code));
+            //ui->gold_code_bits->insertPlainText("\t'unbalanced'\n");
         }
 
         //shifting the second m-sequence
@@ -137,8 +137,16 @@ QBitArray MainWindow::gold(int seqLength, QBitArray seqA, QBitArray seqB)
 
         seqB = temp;
     }
-
     ui->gold_code_bits->insertPlainText("\n");
-    return gold_code;
-
 }
+
+void MainWindow::clearViewOnGui()
+{
+    ui->status_win->clear();
+    ui->seq_1_bits->clear();
+    ui->seq_2_bits->clear();
+    ui->gold_code_bits->clear();
+}
+
+
+

@@ -37,10 +37,11 @@ private:
     QString arrToStr(QBitArray arr);
     QString arrToStr(QByteArray arr);
     QByteArray bitsToBytes(QBitArray arr);
-    QBitArray gold(int seqLength, QBitArray seqA, QBitArray seqB);
+    void gold(int seqLength, QBitArray seqA, QBitArray seqB);
 
 private slots:
-    void GenerateGoldCode();
+    void generateGoldCode();
+    void clearViewOnGui();
 
 };
 
