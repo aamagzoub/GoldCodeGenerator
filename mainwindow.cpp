@@ -4,6 +4,8 @@
 #include <iostream>
 #include <QDebug>
 #include <QBitArray>
+#include <QElapsedTimer>
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -14,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowIcon(QIcon(":/gold_icon.ico"));
     mpmSeqGenA = new mSeqGenA;
     mpmSeqGenB = new mSeqGenB;
+    attemptID= 1;
 
     setStatusWinColors();
     setGGVersionOnStart();
@@ -21,12 +24,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->generate_btn,SIGNAL(clicked()),this,SLOT(isSamePolyDeg()));
     connect(ui->clear_btn,SIGNAL(clicked()),this,SLOT(clearViewOnGui()));
 }
-
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
-
 
 void MainWindow::isSamePolyDeg(){
     if(getCurrentPolyDegree() != ui->poly_deg_val->currentIndex()){
@@ -36,6 +33,7 @@ void MainWindow::isSamePolyDeg(){
 }
 
 void MainWindow::generateGoldCode(){
+
     setCurrentPolyDegree(ui->poly_deg_val->currentIndex());
 
     polyDeg = ui->poly_deg_val->currentText().toInt();
@@ -58,10 +56,9 @@ void MainWindow::generateGoldCode(){
 
     gold(seqLength, seqA, seqB);
     ui->status_win->appendPlainText("-> Gold Codes\t: GENERATED");
+    ui->status_win->appendPlainText("-> Time elapsed\t: ");
     ui->status_win->appendPlainText("-> No. of Bal. Seqs.\t: "+ QString::number(ui->balanced_seq_val->document()->blockCount()-2));
     ui->status_win->appendPlainText("-> No. of Unbal. Seqs.\t: "+ QString::number(ui->unbalanced_seq_val->document()->blockCount()-2));
-
-
 
     ui->status_win->appendPlainText("");
 
@@ -175,4 +172,7 @@ void MainWindow::setStatusWinColors(){
     ui->status_win->setPalette(p);
 }
 
-
+MainWindow::~MainWindow()
+{
+    delete ui;
+}

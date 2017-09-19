@@ -19,25 +19,29 @@ public:
     ~MainWindow();
 
     void setAttemptID(int value);
-    int getAttemptID() const;    
+    int getAttemptID() const;
     void setCurrentPolyDegree(int value);
     int getCurrentPolyDegree() const;
 private:
     Ui::MainWindow *ui;
 
-    int attemptID = 1;
+    int attemptID;
+    int counter;
     int currentPolyDegree;
     int polyDeg;
     int seqLength;
     mSeqGenA *mpmSeqGenA;
     mSeqGenB *mpmSeqGenB;
+    QTimer *timer;
     int setSeqLength(int polyDeg);
     QString arrToStr(QBitArray arr);
     QString arrToStr(QByteArray arr);
     QByteArray bitsToBytes(QBitArray arr);
-    void gold(int seqLength, QBitArray seqA, QBitArray seqB);    
+    void gold(int seqLength, QBitArray seqA, QBitArray seqB);
     void setGGVersionOnStart();
     void setStatusWinColors();
+    void updateProgressBar();
+    void progressbarTimer(QString TimeSet);
 private slots:
     void generateGoldCode();
     void clearViewOnGui();
