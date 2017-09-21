@@ -6,6 +6,7 @@
 #include <QBitArray>
 #include <QElapsedTimer>
 #include <QTimer>
+#include <QTime>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -23,6 +24,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->generate_btn,SIGNAL(clicked()),this,SLOT(isSamePolyDeg()));
     connect(ui->clear_btn,SIGNAL(clicked()),this,SLOT(clearViewOnGui()));
+    connect(ui->exit_btn,SIGNAL(clicked()),this,SLOT(close()));
+
+
 }
 
 void MainWindow::isSamePolyDeg(){
@@ -33,7 +37,9 @@ void MainWindow::isSamePolyDeg(){
 }
 
 void MainWindow::generateGoldCode(){
-
+    QTime myTimer;
+    myTimer.start();
+    ui->progressBar->reset();
     setCurrentPolyDegree(ui->poly_deg_val->currentIndex());
 
     polyDeg = ui->poly_deg_val->currentText().toInt();
@@ -54,15 +60,16 @@ void MainWindow::generateGoldCode(){
     ui->mseq_2_bits->setText(arrToStr(seqB));
     ui->status_win->appendPlainText("-> 2st m-sequence\t: READY");
 
-    gold(seqLength, seqA, seqB);
+    generateGoldCodes(seqLength, seqA, seqB);
     ui->status_win->appendPlainText("-> Gold Codes\t: GENERATED");
-    ui->status_win->appendPlainText("-> Time elapsed\t: ");
+    ui->status_win->appendPlainText("-> Time elapsed\t: "+QString::number(myTimer.elapsed()));
     ui->status_win->appendPlainText("-> No. of Bal. Seqs.\t: "+ QString::number(ui->balanced_seq_val->document()->blockCount()-2));
     ui->status_win->appendPlainText("-> No. of Unbal. Seqs.\t: "+ QString::number(ui->unbalanced_seq_val->document()->blockCount()-2));
 
     ui->status_win->appendPlainText("");
 
     setAttemptID(attemptID);
+
 }
 
 int MainWindow::setSeqLength(int polyDeg){
@@ -95,17 +102,21 @@ QString MainWindow::arrToStr(QBitArray arr){
     return arrStr;
 }
 
-void MainWindow::gold(int seqLength, QBitArray seqA, QBitArray seqB){
+void MainWindow::generateGoldCodes(int seqLength, QBitArray seqA, QBitArray seqB){
     int i, j, d;
     QBitArray gold_code(seqLength);
 
+    ui->progressBar->setRange(0,seqLength);
+
     for (d=0; d<seqLength; d++){
+        ui->progressBar->setValue(d+1);
         QBitArray temp(seqLength);
 
         // generating the gold code
         for (i=0; i<seqLength; i++)
         {
             gold_code[i] = seqA[i] ^ seqB[i];
+
         }
 
         //checking if the gold sequence is balanced & showing the gold code
@@ -157,6 +168,8 @@ void MainWindow::clearViewOnGui(){
 
     setCurrentPolyDegree(-1);
     setGGVersionOnStart();
+
+    ui->progressBar->reset();
 }
 
 void MainWindow::setGGVersionOnStart(){
