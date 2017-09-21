@@ -22,27 +22,65 @@ MainWindow::MainWindow(QWidget *parent) :
     setStatusWinColors();
     setGGVersionOnStart();
 
-    connect(ui->generate_btn,SIGNAL(clicked()),this,SLOT(isSamePolyDeg()));
     connect(ui->clear_btn,SIGNAL(clicked()),this,SLOT(clearViewOnGui()));
     connect(ui->exit_btn,SIGNAL(clicked()),this,SLOT(close()));
 
+    connect(ui->poly_deg_5,SIGNAL(clicked()),this,SLOT(setPolyValue5()));
+    connect(ui->poly_deg_6,SIGNAL(clicked()),this,SLOT(setPolyValue6()));
+    connect(ui->poly_deg_7,SIGNAL(clicked()),this,SLOT(setPolyValue7()));
+    connect(ui->poly_deg_8,SIGNAL(clicked()),this,SLOT(setPolyValue8()));
+    connect(ui->poly_deg_9,SIGNAL(clicked()),this,SLOT(setPolyValue9()));
+    connect(ui->poly_deg_10,SIGNAL(clicked()),this,SLOT(setPolyValue10()));
 
+    QString one = "QProgressBar::chunk {background-color: #FFD700;}";
+    ui->progressBar->setStyleSheet(one);
+    ui->progressBar->setAlignment(Qt::AlignCenter);
 }
 
-void MainWindow::isSamePolyDeg(){
-    if(getCurrentPolyDegree() != ui->poly_deg_val->currentIndex()){
-        clearViewOnGui();
-        generateGoldCode();
-    }
+void MainWindow::setPolyValue5(){
+    clearViewOnGui();
+    setCurrentPolyDegree(ui->poly_deg_5->text().toInt());
+    generateGoldCode();
 }
+
+void MainWindow::setPolyValue6(){
+    clearViewOnGui();
+    setCurrentPolyDegree(ui->poly_deg_6->text().toInt());
+    generateGoldCode();
+}
+
+void MainWindow::setPolyValue7(){
+    clearViewOnGui();
+    setCurrentPolyDegree(ui->poly_deg_7->text().toInt());
+    generateGoldCode();
+}
+
+void MainWindow::setPolyValue8(){
+    clearViewOnGui();
+    setCurrentPolyDegree(ui->poly_deg_8->text().toInt());
+    generateGoldCode();
+}
+
+void MainWindow::setPolyValue9(){
+    clearViewOnGui();
+    setCurrentPolyDegree(ui->poly_deg_9->text().toInt());
+    generateGoldCode();
+}
+
+void MainWindow::setPolyValue10(){
+    clearViewOnGui();
+    setCurrentPolyDegree(ui->poly_deg_10->text().toInt());
+    generateGoldCode();
+}
+
 
 void MainWindow::generateGoldCode(){
     QTime myTimer;
     myTimer.start();
-    ui->progressBar->reset();
-    setCurrentPolyDegree(ui->poly_deg_val->currentIndex());
 
-    polyDeg = ui->poly_deg_val->currentText().toInt();
+    ui->progressBar->reset();
+
+    polyDeg = getCurrentPolyDegree();
     seqLength = setSeqLength(polyDeg);
 
     QBitArray taps_seed(polyDeg);
@@ -173,7 +211,7 @@ void MainWindow::clearViewOnGui(){
 }
 
 void MainWindow::setGGVersionOnStart(){
-    ui->status_win->appendPlainText("Gold-Code Generator (version 0.1)");
+    ui->status_win->appendPlainText("Gold-Code Generator (version 3.0)");
     ui->status_win->appendPlainText("____________________________");
     ui->status_win->appendPlainText("");
 }

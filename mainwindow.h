@@ -34,6 +34,7 @@ private:
     int polyDeg;
     int seqLength;
     int setSeqLength(int polyDeg);
+    int polyValue;
 
     mSeqGenA *mpmSeqGenA;
     mSeqGenB *mpmSeqGenB;
@@ -49,7 +50,12 @@ private:
 private slots:
     void generateGoldCode();
     void clearViewOnGui();
-    void isSamePolyDeg();
+    void setPolyValue5();
+    void setPolyValue6();
+    void setPolyValue7();
+    void setPolyValue8();
+    void setPolyValue9();
+    void setPolyValue10();
 };
 
 #endif // MAINWINDOW_H
