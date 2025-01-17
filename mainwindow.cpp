@@ -1,11 +1,11 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "cmath"
-#include <iostream>
 #include <QDebug>
 #include <QBitArray>
 #include <QElapsedTimer>
 #include <QTimer>
+#include <QElapsedTimer>
 #include <QTime>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -75,7 +75,7 @@ void MainWindow::setPolyValue10(){
 
 
 void MainWindow::generateGoldCode(){
-    QTime myTimer;
+    QElapsedTimer myTimer;
     myTimer.start();
 
     ui->progressBar->reset();
